@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credit Approval Ledger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0F2438;
+    --ink-2: #16324A;
+    --paper: #EDE6D6;
+    --paper-dim: #d9d0ba;
+    --gold: #C9A227;
+    --teal: #3E7C7A;
+    --red-stamp: #9B3A34;
+    --green-stamp: #3E6B4F;
+    --line: rgba(237, 230, 214, 0.16);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(201,162,39,0.08), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(62,124,122,0.10), transparent 45%);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+    margin-bottom: 34px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 30px;
+    letter-spacing: 0.2px;
+    margin: 0;
+  }
+
+  header .ledger-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 28px;
+  }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: rgba(237,230,214,0.03);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 26px 28px;
+  }
+
+  fieldset {
+    border: none;
+    padding: 0;
+    margin: 0 0 22px 0;
+  }
+
+  legend {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    padding: 0;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--paper-dim);
+    margin-bottom: 5px;
+    letter-spacing: 0.3px;
+  }
+
+  input, select {
+    width: 100%;
+    background: rgba(15,36,56,0.55);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--paper);
+    padding: 9px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+
+  select { font-family: 'Inter', sans-serif; }
+
+  input:focus, select:focus {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+  }
+
+  button.submit {
+    width: 100%;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    padding: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 0.4px;
+    margin-top: 6px;
+  }
+  button.submit:hover { background: #ddb62f; }
+  button.submit:focus-visible { outline: 3px solid var(--paper); }
+
+  .result-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 420px;
+  }
+
+  .result-empty {
+    color: var(--paper-dim);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 260px;
+  }
+
+  .gauge-wrap { position: relative; width: 220px; margin-bottom: 18px; }
+
+  .gauge-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 34px;
+    font-weight: 700;
+    fill: var(--paper);
+  }
+
+  .gauge-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    fill: var(--paper-dim);
+    letter-spacing: 1px;
+  }
+
+  .stamp {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border: 4px solid currentColor;
+    border-radius: 8px;
+    padding: 10px 22px;
+    display: inline-block;
+    transform: rotate(-6deg);
+    animation: stamp-in 0.35s ease-out;
+    margin-top: 8px;
+  }
+
+  .stamp.approved { color: var(--green-stamp); }
+  .stamp.denied { color: var(--red-stamp); }
+
+  @keyframes stamp-in {
+    0% { opacity: 0; transform: rotate(-6deg) scale(1.6); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: rotate(-6deg) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stamp { animation: none; }
+  }
+
+  .error-box {
+    border: 1px solid var(--red-stamp);
+    color: #f0b9b3;
+    background: rgba(155,58,52,0.12);
+    padding: 14px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    max-width: 300px;
+  }
+
+  footer {
+    margin-top: 30px;
+    font-size: 11px;
+    color: var(--paper-dim);
+    text-align: center;
+    letter-spacing: 0.4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Credit Approval Ledger</h1>
+    <div class="ledger-no">FILE No. {{ range(100000,999999) | random }}</div>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <form method="POST">
+        <fieldset>
+          <legend>Applicant</legend>
+          <div class="field-row">
+            <div>
+              <label for="age">Age</label>
+              <input type="number" id="age" name="age" min="18" max="100" value="{{ form_values.get('age', 35) }}" required>
+            </div>
+            <div>
+              <label for="employment_years">Years Employed</label>
+              <input type="number" step="0.1" id="employment_years" name="employment_years" value="{{ form_values.get('employment_years', 6) }}" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label for="employment_type">Employment Type</label>
+              <select id="employment_type" name="employment_type">
+                {% for et in employment_types %}
+                <option value="{{ et }}" {% if form_values.get('employment_type')==et %}selected{% endif %}>{{ et }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="home_ownership">Home Ownership</label>
+              <select id="home_ownership" name="home_ownership">
+                {% for h in home_ownership %}
+                <option value="{{ h }}" {% if form_values.get('home_ownership')==h %}selected{% endif %}>{{ h }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Financial Standing</legend>
+          <div class="field-row">
+            <div>
+              <label for="annual_income">Annual Income ($)</label>
+              <input type="number" step="100" id="annual_income" name="annual_income" value="{{ form_values.get('annual_income', 72000) }}" required>
+            </div>
+            <div>
+              <label for="credit_score">Credit Score</label>
+              <input type="number" min="300" max="850" id="credit_score" name="credit_score" value="{{ form_values.get('credit_score', 710) }}" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label for="existing_debt">Existing Debt ($)</label>
+              <input type="number" step="100" id="existing_debt" name="existing_debt" value="{{ form_values.get('existing_debt', 8000) }}" required>
+            </div>
+            <div>
+              <label for="num_credit_lines">Open Credit Lines</label>
+              <input type="number" min="0" id="num_credit_lines" name="num_credit_lines" value="{{ form_values.get('num_credit_lines', 5) }}" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label for="num_late_payments">Late Payments (past year)</label>
+              <input type="number" min="0" id="num_late_payments" name="num_late_payments" value="{{ form_values.get('num_late_payments', 0) }}" required>
+            </div>
+            <div>
+              <label for="has_bankruptcy">Bankruptcy History</label>
+              <select id="has_bankruptcy" name="has_bankruptcy">
+                <option value="0" {% if form_values.get('has_bankruptcy')=='0' %}selected{% endif %}>No</option>
+                <option value="1" {% if form_values.get('has_bankruptcy')=='1' %}selected{% endif %}>Yes</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Requested Loan</legend>
+          <div class="field-row">
+            <div>
+              <label for="loan_amount">Loan Amount ($)</label>
+              <input type="number" step="100" id="loan_amount" name="loan_amount" value="{{ form_values.get('loan_amount', 15000) }}" required>
+            </div>
+            <div>
+              <label for="loan_term_months">Term (months)</label>
+              <select id="loan_term_months" name="loan_term_months">
+                {% for t in [12,24,36,48,60] %}
+                <option value="{{ t }}" {% if form_values.get('loan_term_months')==t|string %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label for="loan_purpose">Purpose</label>
+              <select id="loan_purpose" name="loan_purpose">
+                {% for p in loan_purposes %}
+                <option value="{{ p }}" {% if form_values.get('loan_purpose')==p %}selected{% endif %}>{{ p.replace('_',' ') }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div></div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="submit">Submit Application</button>
+      </form>
+    </div>
+
+    <div class="panel result-panel">
+      {% if result %}
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 220 130" width="220">
+            <path d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="rgba(237,230,214,0.15)" stroke-width="14" stroke-linecap="round"/>
+            <path d="M 20 110 A 90 90 0 0 1 200 110"
+                  fill="none"
+                  stroke="{{ '#3E6B4F' if result.decision == 'Approved' else '#9B3A34' }}"
+                  stroke-width="14" stroke-linecap="round"
+                  stroke-dasharray="{{ (result.probability/100*251)|round(1) }} 251"/>
+            <text x="110" y="90" text-anchor="middle" class="gauge-label">{{ result.probability }}%</text>
+            <text x="110" y="112" text-anchor="middle" class="gauge-sub">APPROVAL LIKELIHOOD</text>
+          </svg>
+        </div>
+        <div class="stamp {{ 'approved' if result.decision == 'Approved' else 'denied' }}">
+          {{ result.decision }}
+        </div>
+      {% elif error %}
+        <div class="error-box">{{ error }}</div>
+      {% else %}
+        <div class="result-empty">
+          Complete the ledger on the left and submit to see the underwriting decision and approval likelihood here.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <footer>Synthetic model &middot; for demonstration only &middot; not a real lending decision</footer>
+</div>
+</body>
+</html>
